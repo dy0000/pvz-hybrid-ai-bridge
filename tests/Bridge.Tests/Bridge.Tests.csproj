@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault" Value="false" />
+    <Compile Include="../../src/PvzAiBridge/StepClock.cs" Link="StepClock.cs" />
+    <Compile Include="../../src/PvzAiBridge/ControlMode.cs" Link="ControlMode.cs" />
+    <Compile Include="../../src/PvzAiBridge/TutorialPolicy.cs" Link="TutorialPolicy.cs" />
+    <Compile Include="../../src/PvzAiBridge/ObservationFacts.cs" Link="ObservationFacts.cs" />
+    <Compile Include="../../src/PvzAiBridge/ContinuousPolicyFacts.cs" Link="ContinuousPolicyFacts.cs" />
+    <Compile Include="../../src/PvzAiBridge/PurchaseLedger.cs" Link="PurchaseLedger.cs" />
+    <Compile Include="../../src/PvzAiBridge/PurchaseLifecycle.cs" Link="PurchaseLifecycle.cs" />
+    <Compile Include="../../src/PvzAiBridge/SharedObservation.cs" Link="SharedObservation.cs" />
+    <Compile Include="../../src/PvzAiBridge/OneUseCardRegistry.cs" Link="OneUseCardRegistry.cs" />
+    <Compile Include="../../src/PvzAiBridge/ReceiptProof.cs" Link="ReceiptProof.cs" />
+    <Compile Include="../../src/PvzAiBridge/WireProtocol.cs" Link="WireProtocol.cs" />
+    <Compile Include="../../src/PvzAiBridge/PlantPlan.cs" Link="PlantPlan.cs" />
+    <Compile Include="../../src/PvzAiBridge/LiveJournal.cs" Link="LiveJournal.cs" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,25 @@
+name: Installation and MCP checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  distribution:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check installation boundaries
+        run: python -X utf8 -m unittest discover -s tests -p test_distribution.py -v
+      - name: Check client and MCP boundaries
+        run: python -X utf8 -m unittest discover -s tests -p test_client.py -v
+      - name: Package public files
+        run: python -X utf8 scripts/package_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pvz-hybrid-ai-bridge
+          path: dist/*

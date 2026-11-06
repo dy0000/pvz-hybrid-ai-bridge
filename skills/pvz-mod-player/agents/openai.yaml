@@ -1,0 +1,4 @@
+interface:
+  display_name: "植物大战僵尸 Mod 游玩"
+  short_description: "通过原生 Mod 实时游玩、完成关卡结算并为 AI 直播提供可靠状态"
+  default_prompt: "使用 $pvz-mod-player，通过隔离副本的 Mod 接口实时游玩一关，保持本地决策关闭和游戏内面板隐藏，完成领奖结算后交还控制。"

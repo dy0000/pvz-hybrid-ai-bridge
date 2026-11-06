@@ -1,0 +1,29 @@
+name: Publish release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify distribution boundaries
+        run: python -X utf8 -m unittest discover -s tests -p test_distribution.py -v
+      - name: Package public files
+        run: python -X utf8 scripts/package_release.py
+      - name: Publish installer and checksum
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content mod/mod.json -Raw | ConvertFrom-Json).version
+          $tag = "v$version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'Tag and Mod version differ.' }
+          gh release create $tag "dist/pvz-hybrid-ai-bridge-$version.zip" "dist/pvz-hybrid-ai-bridge-$version.zip.sha256" --target $env:GITHUB_SHA --title "PVZ Hybrid AI Bridge $version" --notes-file CHANGELOG.md
+          if ($LASTEXITCODE -ne 0) { throw 'Release failed. Inspect the existing tag/release before retrying.' }

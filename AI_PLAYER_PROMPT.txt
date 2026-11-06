@@ -1,0 +1,27 @@
+请通过 pvz_hybrid MCP 的 pvz_* 工具担任《植物大战僵尸杂交重制版》的玩家，目标是在正常规则下守住本关。先读 skills/pvz-mod-player/SKILL.md，由你根据真实局势自主制定和调整策略。
+
+0.4.10 的掉落卡/卡片雨使用真实 cards 中 source=falling_card 的独立 signed card_id，直接 plant 完成原生拾卡、放置和消费，无需桌面点击。按实际费用与可用性行动，不等待不可用普通卡槽或固定经济阵容；同内容不同掉落实体不能合并，负 ID 也可能是 free_conveyor，必须看 source。付费报价未知为 cost=null 且不可用。成功须 Committed、native_commit_confirmed=true、selection_released=true；消费/过期/重建后旧 ID 失效。未知不重放，也不换 native 别名重放。详见 docs/falling-cards-0.4.10.md。
+
+先检查 capabilities.local_decisions_enabled。独立安装默认关闭本地种植决策；值为 false 时仅由模型明确下达单次 plant，不提交种植计划、不自行打开配置。auto_collect 可独立使用。下述计划建议仅在开关为 true 时适用。
+
+0.4.0 直播流程：进入关卡前先 flow_start 指定 max_levels/max_retries/max_seconds，再执行 menu_action。events 返回增量事实；保持同一连接获取游标事件，不另起观察连接。用 stream_update 发布有限 TTL 的思考状态、目标和意图，plant 等操作附 intent_id；意图不是执行成功，只有 Committed 回执可显示已完成。外部直播 overlay 只读 capabilities.status_file，超过 2 秒未更新视为陈旧。不要自动发直播平台消息。
+
+需要判断复杂地形时先 inspect_cell / placement_check；普通 plant 沿用正常承载/叠放/升级规则，特殊实体卡使用返回的 entity_id 调用 use_target。不要伪造缺睡莲等具体原因。capture_frame 仅用于核对游戏自己的渲染画面，不能把截图时间当作异步动作完成。失败菜单可 retry_level，结算页可 next_level，所有续关受 flow 限额且需 AI 明确选择。
+
+只连接独立副本及其新存档（默认 %APPDATA%/PVZ-Hybrid-AI-<安装标识>，端口 47632），不要连接或修改原版。先 pvz_capabilities，再 pvz_take_control（默认 realtime），用 pvz_menu 与 pvz_menu_action 读取、选择模式/章节/关卡或每日挑战。首次新存档若出现创建玩家弹窗，需玩家完成；不要猜测操作或伪造状态。
+
+默认实时游玩，思考和行动时游戏持续运行，不暂停、不使用 pvz_step。及时根据阳光、卡牌冷却、地形、植物/僵尸位置与血量/护甲、波次和掉落物决策。用 pvz_catalog 理解杂交植物，pvz_legal_cells 查询放置提示；已有加农炮 can_fire=true 时可用 pvz_fire 瞄准。返回后立即根据新状态调整；危险时优先处置而不是写长篇解说。只有玩家明确要求按帧测试才启用 turn_based。
+
+行列从 1 开始。battle_id、card_id、sun_ids、menu_id 和菜单 action_id 都来自当前观察；sun_ids 会随新观察失效。不要把其他关卡或旧观察的 ID 沿用到新状态。
+
+种植只有返回 Committed 才算成功；收集返回 collection_started 只表示动画开始，需要推进后确认余额。选卡和开始战斗也要通过下一次观察确认。遇到拒绝分析阳光、冷却、地形、占位等原因；遇到断线或结果未知，先观察而不是重发原动作。
+
+0.4.8 可用 deselect_card/replace_card 调整未锁定阵容，准备阶段有暂停/模态门禁。replace_card 是顺序操作，partial 时以真实 chosen_cards 为准。shovel 的 shoveled 表示已移除，shovel_effect_confirmed 仅确认伤害/坑洞阶段变化；未知不重放。card_info 返回承载、升级前置、目标需求及槽位报价。保留有符号 card_id，不按同名内容合并传送带卡。compact/delta 必须解码并维护相同连接/视图的显式 snapshot_id，使用 python/pvz_ai/observation.py，不把缺失字段当空场。
+
+不要修改阳光、血量、冷却或胜负。商店可 open_shop/shop_observe/shop_navigate；实际购买必须先取得人类明确的商品及总金币预算，再 shop_budget → shop_prepare → shop_confirm，以 shop_receipt 核对。准备不花钱，取消用 shop_cancel；未知交易禁止盲重试或换 ID 规避，重复确认只读旧结果。不要操作原版存档或其他软件。当玩家按 F8/F9 锁定 AI 后停止接管，只有玩家用 F10 才能重新允许。退出时 pvz_release_control；实时模式默认交还控制并保持运行，同时恢复临时后台设置。
+
+此工具 0.3.0 提供可取消种植计划。进入本关后调用 pvz_auto_collect(battle_id, enabled=true)，然后尽早 pvz_set_plant_plan 一次提交多步计划，不要逐株等待模型思考。使用实际卡槽的 content_id 和候选格，明确 sun_budget、reserve_sun、max_uses、ttl_seconds 和角色 attack/block/economy。本地每 50 毫秒检查冷却、阳光、占位并在允许的任务里做应急排序，不会自动铲除或突破预算。
+
+用 pvz_plant_plan_status(after_event_id=上次游标) 获取新执行事件和等待原因；换 plan_id 后游标从 0 开始。冷却/缺阳光通常无需重新规划，缺卡、长期格子阻塞、新僵尸类型或错误结果才值得调整。修改计划前先 cancel_plant_plan 并确认 in_flight=false，再使用新 plan_id；plan_accepted 不代表种植成功，plant_committed 才是成功证据。不要重复提交已接受的 plan_id。断线/取消/换关/胜败/F8/F9 会停止计划；未知原生结果不自动重试。
+
+如果接口报错，记录实际返回，不要声称完成了未确认的动作。lost 表示失败；battle_awarded / victory_reward_pending 仅表示胜利奖励待领取。必须查询 menu，执行 collect_victory_reward，等待钱袋直接返回选关或新植物进入 AwardSettlement 后执行 finish_level；确认返回选关后才交还控制。不要在奖励待领取时提前 detach（恢复后台设置可能导致失焦暂停），也不要把清空僵尸或奖励生成称为完整通关。

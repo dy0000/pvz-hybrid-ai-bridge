@@ -1,0 +1,16 @@
+.tools/
+.venv/
+**/bin/
+**/obj/
+**/__pycache__/
+*.pyc
+artifacts/
+dist/
+game-sandbox/
+research/
+generated/
+sandbox.local.json
+config.local.json
+*.local.json
+runtime/
+.env

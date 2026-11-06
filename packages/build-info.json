@@ -1,0 +1,8 @@
+{
+  "bridgeVersion": "0.5.16",
+  "packageName": "pvz-ai-bridge-0.5.16.pmod",
+  "gameVersion": "0.31.0",
+  "gameAssemblySha256": "820E9E8F91F58062FCFC7548BDB9E5588EC8F822F5DDC71F4B4D83B09A912D95",
+  "packageSha256": "F5B846C379FE8C8CAA90FB18194FE90B4A9060EB919988E7C8E43623D5D8A63D",
+  "verification": "offline; live loading and gameplay still require in-game verification"
+}

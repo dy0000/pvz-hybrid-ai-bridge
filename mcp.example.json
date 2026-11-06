@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pvz_hybrid": {
+      "command": "C:/Path/To/Python312/python.exe",
+      "args": ["-X", "utf8", "C:/Path/To/pvz-hybrid-ai-bridge/scripts/run_mcp.py"]
+    }
+  }
+}

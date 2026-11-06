@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "id": "local.pvz-ai-bridge",
+  "name": "AI 玩家接口",
+  "version": "0.5.16",
+  "author": "Local",
+  "description": "AI 原生实时游玩接口：选关、战场状态、种植、收集、铲除和加农炮瞄准。无 OCR，无固定通关脚本，保留正常阳光与冷却。仅限单人游戏。",
+  "playInstructions": "运行 Python MCP 服务。默认实时模式不会暂停游戏；AI 可读取原生菜单并选择关卡。接管期间临时允许后台运行，退出恢复原设置。F8 紧急停止并暂停，F9 交还手动控制，F10 重新允许 AI 接管。按帧测试仅在显式选择 turn_based 时可用。",
+  "runtimeAssembly": "Runtime/ModAssembly.dll",
+  "runtimeEntryType": "PvzAiBridge.Entry",
+  "runtimeApiVersion": 3,
+  "runtimeAssemblyPolicy": "required"
+}
