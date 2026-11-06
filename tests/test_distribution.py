@@ -76,6 +76,11 @@ class DistributionTests(unittest.TestCase):
             info["gameAssemblySha256"] = hashlib.sha256(b"synthetic fixture - never execute").hexdigest()
             metadata.write_text(json.dumps(info), encoding="utf8")
             env = {**os.environ, "APPDATA": str(appdata)}
+            # Windows runners commonly expose TEMP through an 8.3 path alias.
+            import ctypes
+            short_path = ctypes.create_unicode_buffer(32768)
+            if ctypes.windll.kernel32.GetShortPathNameW(str(appdata), short_path, len(short_path)):
+                env["APPDATA"] = short_path.value
             # Do not feed PowerShell 7's module path to Windows PowerShell 5.1.
             env = {key: value for key, value in env.items() if key.upper() != "PSMODULEPATH"}
 
@@ -93,13 +98,13 @@ class DistributionTests(unittest.TestCase):
             run(setup)
             state = json.loads((root / "sandbox.local.json").read_text(encoding="utf-8-sig"))
             saves = Path(state["userDataDirectory"])
-            self.assertTrue(saves.is_relative_to(appdata))
+            self.assertTrue(saves.resolve().is_relative_to(appdata.resolve()))
             (saves / "player.save").write_bytes(b"keep this save")
             # The native and Python sides must derive exactly the same save path.
             sys.path.insert(0, str(ROOT / "python"))
             from pvz_ai import client
             with mock.patch.object(client, "__file__", str(root / "python/pvz_ai/client.py")), mock.patch.dict(os.environ, env):
-                self.assertEqual(client.default_config().parent.parent, saves)
+                self.assertEqual(client.default_config().parent.parent.resolve(), saves.resolve())
             # Repeat setup adopts only this installation's verified sandbox.
             run(setup)
             install = "& " + quote(root / "scripts/install.ps1")

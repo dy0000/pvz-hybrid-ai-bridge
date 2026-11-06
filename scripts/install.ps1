@@ -15,7 +15,7 @@ $GameDirectory = [System.IO.Path]::GetFullPath($GameDirectory).TrimEnd('\', '/')
 $UserDataDirectory = [System.IO.Path]::GetFullPath($UserDataDirectory).TrimEnd('\', '/')
 $override = Get-Content -LiteralPath (Join-Path $GameDirectory 'override.cfg') -Raw
 $userDataName = Split-Path -Leaf $UserDataDirectory
-if ($UserDataDirectory -ne (Join-Path $env:APPDATA $userDataName) -or
+if ($UserDataDirectory -ne [System.IO.Path]::GetFullPath((Join-Path $env:APPDATA $userDataName)).TrimEnd('\', '/') -or
     $override -notmatch 'config/use_custom_user_dir=true' -or
     -not $override.Contains("config/custom_user_dir_name=`"$userDataName`"")) { throw 'Target save override does not match the isolated Mod destination.' }
 $info = Get-Content -LiteralPath (Join-Path $projectRoot 'packages\build-info.json') -Raw | ConvertFrom-Json
